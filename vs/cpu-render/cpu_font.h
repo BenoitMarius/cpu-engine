@@ -31,5 +31,5 @@ public:
 
 public:
 	cpu_font();
-	bool Create(int fontPx, XMFLOAT3 color = CPU_WHITE, const char* fontName = "Consolas", int cellW = -1, int cellH = -1, int firstChar = 32, int lastChar = 255);
+	bool Create(int fontPx, XMFLOAT3 color = CPU_WHITE, cstr fontName = "Consolas", int cellW = -1, int cellH = -1, int firstChar = 32, int lastChar = 255);
 };

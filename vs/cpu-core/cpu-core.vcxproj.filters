@@ -106,6 +106,9 @@
     <ClInclude Include="cpu_player.h">
       <Filter>audio</Filter>
     </ClInclude>
+    <ClInclude Include="cpu_obj.h">
+      <Filter>image</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cpu-core.cpp">
@@ -191,6 +194,9 @@
     </ClCompile>
     <ClCompile Include="cpu_player.cpp">
       <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu_obj.cpp">
+      <Filter>image</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

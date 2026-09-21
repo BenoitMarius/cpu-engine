@@ -93,6 +93,7 @@ using i32								= __int32;
 using ui32								= unsigned __int32;
 using i64								= __int64;
 using ui64								= unsigned __int64;
+using cstr								= const char*;
 
 // Memory
 #ifdef _DEBUG
@@ -151,6 +152,7 @@ inline XMFLOAT3 CPU_ORANGE				= { 1.0f, 0.5f, 0.0f };
 // Core
 #include "cpu_png32.h"
 #include "cpu_img32.h"
+#include "cpu_obj.h"
 #include "cpu_global.h"
 #include "cpu_atomic.h"
 #include "cpu_object.h"

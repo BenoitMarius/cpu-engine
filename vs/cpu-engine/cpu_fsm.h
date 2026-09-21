@@ -69,7 +69,7 @@ public:
 	void SetPostGlobal();
 
 	template <typename S>
-	void Add(const char* name = nullptr);
+	void Add(cstr name = nullptr);
 
 	std::string GetName();
 
@@ -127,7 +127,7 @@ void cpu_fsm<T>::SetPostGlobal()
 
 template <typename T>
 template <typename S>
-void cpu_fsm<T>::Add(const char* name)
+void cpu_fsm<T>::Add(cstr name)
 {
 	static S state;
 

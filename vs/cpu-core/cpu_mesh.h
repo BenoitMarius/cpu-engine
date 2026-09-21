@@ -14,6 +14,8 @@ public:
 
 	void Clear();
 	int GetTriangleCount();
+	bool LoadObj(cstr path);
+	bool LoadObj(byte* data, int size);
 	void AddMesh(cpu_mesh& mesh);
 	void AddTriangle(cpu_triangle& tri);
 	void AddTriangle(XMFLOAT3& a, XMFLOAT3& b, XMFLOAT3& c, XMFLOAT3& color);

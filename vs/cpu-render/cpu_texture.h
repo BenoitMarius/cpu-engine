@@ -16,7 +16,7 @@ public:
 	cpu_texture();
 	~cpu_texture();
 
-	bool Load(const char* path);
+	bool Load(cstr path);
 	void Close();
 	void Sample(XMFLOAT3& outColor, float x, float y);
 

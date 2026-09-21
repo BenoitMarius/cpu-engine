@@ -460,7 +460,7 @@ void cpu_device::DrawWireframeMesh(cpu_mesh* pMesh, FXMMATRIX matrix, cpu_tile* 
 	}
 }
 
-void cpu_device::DrawText(cpu_font* pFont, const char* text, int x, int y, int align, XMFLOAT3* pTint)
+void cpu_device::DrawText(cpu_font* pFont, cstr text, int x, int y, int align, XMFLOAT3* pTint)
 {
 	if ( pFont==nullptr || pFont->bgra.size()==0 || text==nullptr )
 		return;
@@ -468,11 +468,11 @@ void cpu_device::DrawText(cpu_font* pFont, const char* text, int x, int y, int a
 	cpu_rt& rt = *GetRT();
 	const int cw = pFont->advance;
 	const int ch = pFont->cellH;
-	const char* p = text;
-	const char* lineStart = text;
+	cstr p = text;
+	cstr lineStart = text;
 	int lineIndex = 0;
 
-	auto DrawLine = [&](const char* start, int len, int penY)
+	auto DrawLine = [&](cstr start, int len, int penY)
 	{
 		int penX = x;
 		if ( align==CPU_TEXT_CENTER ) penX = x - (len * cw) / 2;

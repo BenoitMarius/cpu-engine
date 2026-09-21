@@ -22,6 +22,28 @@ int cpu_mesh::GetTriangleCount()
 	return (int)(vertices.size()/3);
 }
 
+bool cpu_mesh::LoadObj(cstr path)
+{
+	Clear();
+	if ( cpu_obj::Load(path, this)==false )
+	{
+		Clear();
+		return false;
+	}
+	return true;
+}
+
+bool cpu_mesh::LoadObj(byte* data, int size)
+{
+	Clear();
+	if ( cpu_obj::Load(data, size, this)==false )
+	{
+		Clear();
+		return false;
+	}
+	return true;
+}
+
 void cpu_mesh::AddMesh(cpu_mesh& mesh)
 {
 	vertices.reserve(vertices.size()+mesh.vertices.size());
