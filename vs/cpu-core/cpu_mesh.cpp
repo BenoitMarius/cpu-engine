@@ -472,11 +472,11 @@ void cpu_mesh::CreateSpaceship()
 {
 	Clear();
 	const float width = 2.0f;
-	XMFLOAT3 nose = { 0.0f, 0.0f, 1.5f };
-	XMFLOAT3 rTop = { 0.0f, 0.5f, -1.0f };
-	XMFLOAT3 rBot = { 0.0f, -0.3f, -1.0f };
-	XMFLOAT3 wLeft = { -width*0.5f, 0.0f, -1.0f };
-	XMFLOAT3 wRight = { width*0.5f, 0.0f, -1.0f };
+	XMFLOAT3 nose = { 0.0f, 0.0f, 0.8f };
+	XMFLOAT3 rTop = { 0.0f, 0.2f, -0.3f };
+	XMFLOAT3 rBot = { 0.0f, -0.1f, -0.3f };
+	XMFLOAT3 wLeft = { -width*0.15f, 0.0f, -0.3f };
+	XMFLOAT3 wRight = { width*0.15f, 0.0f, -0.3f };
 
 	XMFLOAT2 noseUV		= { 0.5f, 0.0f };
 	XMFLOAT2 rTopUV		= { 0.5f, 0.4f };

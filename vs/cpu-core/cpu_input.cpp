@@ -207,6 +207,21 @@ bool cpu_input::IsInclineDownReleased()
 	return vi.IsKeyReleased('C');
 }
 
+bool cpu_input::ResetCamera()
+{
+	return vi.IsKey('R');
+}
+
+bool cpu_input::ResetCameraPressed()
+{
+	return vi.IsKeyPressed('R');
+}
+
+bool cpu_input::ResetCameraReleased()
+{
+	return vi.IsKeyReleased('R');
+}
+
 bool cpu_input::IsInclineUp()
 {
 	return vi.IsKey('V');

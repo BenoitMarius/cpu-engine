@@ -52,6 +52,10 @@ public:
 	bool IsInclineDownPressed();
 	bool IsInclineDownReleased();
 
+	bool ResetCamera();
+	bool ResetCameraPressed();
+	bool ResetCameraReleased();
+
 	void Update();
 };
 

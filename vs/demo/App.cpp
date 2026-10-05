@@ -26,7 +26,7 @@ void App::SpawnMissile()
 	pMissile->transform.SetScaling(0.2f);
 	pMissile->transform.pos = m_pShip->GetEntity()->transform.pos;
 	pMissile->transform.SetRotation(m_pShip->GetEntity()->transform);
-	pMissile->transform.Move(1.5f);
+	pMissile->transform.Move(0.5f);
 	m_missiles.push_back(pMissile);
 }
 
@@ -159,8 +159,14 @@ void App::OnUpdate()
 	float newPosX = m_pShip->GetEntity()->transform.pos.x;
 	float newPosY = m_pShip->GetEntity()->transform.pos.y;
 	float newPosZ = m_pShip->GetEntity()->transform.pos.z;
-	cpuEngine.GetCamera()->transform.SetPosition(newPosX, newPosY, newPosZ);
-	//--> A refaire 
+	cpuEngine.GetCamera()->transform.pos.x = newPosX;
+	cpuEngine.GetCamera()->transform.pos.y = newPosY;
+	cpuEngine.GetCamera()->transform.pos.z = newPosZ - 15.0f;
+
+	if (cpuInput.ResetCamera())
+	{
+
+	}
 
 
 	// Move missiles
@@ -173,8 +179,7 @@ void App::OnUpdate()
 	}
 
 	// Fire
-	if ( cpuInput.IsActionPressed() || cpuInput.IsAction(1) )
-		cpuApp.SpawnMissileWithMouse();
+	
 
 	// Purge missiles
 	for ( auto it=m_missiles.begin() ; it!=m_missiles.end() ; )
@@ -306,22 +311,20 @@ void Ship::Update()
 
 	// Turn ship
 	if (cpuInput.IsUp())
-		m_pEntity->transform.Move(dt*10.f);
+		m_pEntity->transform.AddYPR(0, -dt * XM_PI);
 	if (cpuInput.IsDown())
-		m_pEntity->transform.Move(-dt * 10.f);
+		m_pEntity->transform.AddYPR(0, dt * XM_PI);
 	if (cpuInput.IsLeft())
 		m_pEntity->transform.AddYPR(-dt * XM_PI);
 	if (cpuInput.IsRight())
 		m_pEntity->transform.AddYPR(dt * XM_PI);
-	if (cpuInput.IsInclineDown())
-		m_pEntity->transform.AddYPR(0, -dt * XM_PI);
-	if (cpuInput.IsInclineUp())
-		m_pEntity->transform.AddYPR(0, dt * XM_PI);
 
+	if ( cpuInput.vi.IsKey(VK_SPACE) )
+		m_pEntity->transform.Move(dt * 2.f);
 
 
 	// Fire
-	if ( cpuInput.vi.IsKey(VK_SPACE) )
+	if (cpuInput.IsActionPressed() || cpuInput.IsAction(1))
 		cpuApp.SpawnMissile();
 }
 
