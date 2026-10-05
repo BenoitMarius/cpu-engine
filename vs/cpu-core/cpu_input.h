@@ -45,6 +45,12 @@ public:
 	bool IsDown();
 	bool IsDownPressed();
 	bool IsDownReleased();
+	bool IsInclineUp();
+	bool IsInclineUpPressed();
+	bool IsInclineUpReleased();
+	bool IsInclineDown();
+	bool IsInclineDownPressed();
+	bool IsInclineDownReleased();
 
 	void Update();
 };
