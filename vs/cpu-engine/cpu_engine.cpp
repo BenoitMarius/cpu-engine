@@ -31,8 +31,8 @@ bool cpu_engine::Create(int width, int height, bool fullscreen, bool amigaStyle)
 	m_amigaStyle = amigaStyle;
 	m_clear = CPU_CLEAR_SKY;
 	m_clearColor = cpu::ToColor(24, 35, 50);
-	m_groundColor = cpu::ToColor(42, 63, 53);
-	m_skyColor = cpu::ToColor(24, 35, 50);
+	m_groundColor = cpu::ToColor(0, 10, 10);
+	m_skyColor = cpu::ToColor(0, 30, 40);
 
 	// Mesh
 	m_meshBox.CreateCube();

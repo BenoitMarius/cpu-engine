@@ -140,11 +140,12 @@ void App::OnUpdate()
 
 	// Move sprite
 	m_pSprite->y = 60 + cpu::RoundToInt(sinf(time)*20.0f);
-
+		
 	// Turn earth
 	m_pEarth->transform.AddYPR(-dt);
 
 	// Move rock
+	if (cpuInput.IsLeft())
 	m_pMoon->transform.OrbitAroundAxis(m_pEarth->transform.pos, CPU_VEC3_UP, 3.0f, time*2.0f);
 	m_pEmitter->pos = m_pMoon->transform.pos;
 	m_pEmitter->dir = m_pMoon->transform.dir;
