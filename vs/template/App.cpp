@@ -189,14 +189,14 @@ void App::OnUpdate()
 
 		pMissile->transform.Move(dt * m_AsteroSpeed);
 
-		if (Collision(pMissile, m_pCenter)) //TO DO Particules, perte d'HP
+		if (Collision(pMissile, m_pCenter)) 
 		{
 			cpuEngine.Release(pMissile);
 			HP--;
 			ExplodeEarth();
 		}
 
-		if(Collision(pMissile, m_pPlayer)) //TO DO Particules, gain de points
+		if(Collision(pMissile, m_pPlayer)) 
 		{
 			cpuEngine.Release(pMissile);
 			score++;
