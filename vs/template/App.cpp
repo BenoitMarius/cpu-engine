@@ -130,7 +130,7 @@ void App::OnUpdate()
 	{
 		cpu_entity* pMissile = *it;
 		pMissile->transform.Move(dt * m_AsteroSpeed);
-		if (Collision(pMissile, m_pCenter))
+		if (Collision(pMissile, m_pCenter) || Collision(pMissile, m_pPlayer))
 			cpuEngine.Release(pMissile);
 	}
 
