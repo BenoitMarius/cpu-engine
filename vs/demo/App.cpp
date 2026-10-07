@@ -145,7 +145,6 @@ void App::OnUpdate()
 	m_pEarth->transform.AddYPR(-dt);
 
 	// Move rock
-	if (cpuInput.IsLeft())
 	m_pMoon->transform.OrbitAroundAxis(m_pEarth->transform.pos, CPU_VEC3_UP, 3.0f, time*2.0f);
 	m_pEmitter->pos = m_pMoon->transform.pos;
 	m_pEmitter->dir = m_pMoon->transform.dir;
@@ -321,7 +320,7 @@ void Ship::Update()
 		m_pEntity->transform.AddYPR(dt * XM_PI);
 
 	if ( cpuInput.vi.IsKey(VK_SPACE) )
-		m_pEntity->transform.Move(dt * 2.f);
+		m_pEntity->transform.Move(dt * 10.f);
 
 
 	// Fire
