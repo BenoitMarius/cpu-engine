@@ -51,6 +51,10 @@ public:
 	bool IsInclineDown();
 	bool IsInclineDownPressed();
 	bool IsInclineDownReleased();
+	bool IsPause();
+	bool IsPausePressed();
+	bool IsPauseReleased();
+
 
 	bool ResetCamera();
 	bool ResetCameraPressed();

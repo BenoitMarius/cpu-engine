@@ -22,11 +22,11 @@ void App::SpawnAsteroid() {
 	cpu_entity* pAsteroid = cpuEngine.CreateEntity();
 	pAsteroid->pMesh = &m_meshAsteroid;
 	m_asteroids.push_back(pAsteroid);
-	spawnPos = 2*XM_PI * cpu::Rand01(seed);
+	spawnPos = 2 * XM_PI * cpu::Rand01(seed);
 	pAsteroid->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 5.f, spawnPos);
 	pAsteroid->transform.LookAt(m_pCenter->transform.pos.x, m_pCenter->transform.pos.y, m_pCenter->transform.pos.z);
 
-	
+
 	cpu_particle_emitter* pEmitter = cpuEngine.CreateParticleEmitter();
 	cpuEngine.GetParticlePhysics()->gy = -0.5f;
 	pEmitter->rate = 0.001f;
@@ -49,7 +49,7 @@ void App::ExplodeEarth()
 	m_pEarthExplosion->pos = m_pCenter->transform.pos;
 	exploding = true;
 	ExplosionCDTimer = ExplosionCD;
-	
+
 
 }
 
@@ -70,7 +70,7 @@ bool App::Collision(cpu_entity* colliding, cpu_entity* collided)
 	float DistanceZ = (z2 - z1) * (z2 - z1);
 
 	float DistanceTot = sqrt(DistanceX + DistanceY + DistanceZ);
-	
+
 	if (DistanceTot <= colliding->pMesh->radius + collided->pMesh->radius)
 		return true;
 	else return false;
@@ -79,7 +79,7 @@ bool App::Collision(cpu_entity* colliding, cpu_entity* collided)
 void App::OnStart()
 {
 	// YOUR CODE HERE
-	
+
 	//Rando
 	seed = (ui32)timeGetTime();
 
@@ -122,64 +122,69 @@ void App::OnUpdate()
 {
 	// YOUR CODE HERE
 
-	//TO DO Menu pause (switch case pause depause)
-
-	float dt = cpuTime.delta;
-	float time = cpuTime.total;
-
-	spawnCDTimer -= dt;
-	spawnCD  = 3.0f - (score / 10) * 0.5f;
-	if (spawnCD <= 0.3f)
-		spawnCD = 0.3f;
-	if(exploding)
+	switch (currentState)
 	{
-		ExplosionCDTimer -= dt;
-		if (ExplosionCDTimer <= 0)
+	case Gamestate::Pause :
+		break;
+	case Gamestate::Game :
+
+
+		float dt = cpuTime.delta;
+		float time = cpuTime.total;
+
+		spawnCDTimer -= dt;
+		spawnCD = 3.0f - (score / 10) * 0.5f;
+		if (spawnCD <= 0.3f)
+			spawnCD = 0.3f;
+		if (exploding)
 		{
-			exploding = false;
-			ExplosionCDTimer = ExplosionCD;
-			cpuEngine.Release(m_pEarthExplosion);
+			ExplosionCDTimer -= dt;
+			if (ExplosionCDTimer <= 0)
+			{
+				exploding = false;
+				ExplosionCDTimer = ExplosionCD;
+				cpuEngine.Release(m_pEarthExplosion);
+			}
 		}
-	}
-	if (spawnCDTimer <= 0)
-	{
-		SpawnAsteroid();
-		spawnCDTimer += spawnCD;
-	}
+		if (spawnCDTimer <= 0)
+		{
+			SpawnAsteroid();
+			spawnCDTimer += spawnCD;
+		}
 
 
-	//Turn Earth
-	m_pCenter->transform.AddYPR(-dt);
+		//Turn Earth
+		m_pCenter->transform.AddYPR(-dt);
 
 
 
-	//Move Player
-	if (cpuInput.IsLeft())
-	{
-		m_acce += 0.5f;
-		if (m_acce > 3*XM_PI)
-			m_acce = 3*XM_PI;
-		m_angle += dt * m_acce;
-	}
-	if (cpuInput.IsRight())
-	{
-		m_acce += 0.5f;
-		if (m_acce > 3*XM_PI)
-			m_acce = 3*XM_PI;
-		m_angle -= dt * m_acce;
-	}
-	m_pPlayer->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.5f, m_angle);
-	if (cpuInput.IsLeft() == false && cpuInput.IsRight() == false)
-	{
-		m_acce = 0;
-	}
+		//Move Player
+		if (cpuInput.IsLeft())
+		{
+			m_acce += 0.5f;
+			if (m_acce > 3 * XM_PI)
+				m_acce = 3 * XM_PI;
+			m_angle += dt * m_acce;
+		}
+		if (cpuInput.IsRight())
+		{
+			m_acce += 0.5f;
+			if (m_acce > 3 * XM_PI)
+				m_acce = 3 * XM_PI;
+			m_angle -= dt * m_acce;
+		}
+		m_pPlayer->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.5f, m_angle);
+		if (cpuInput.IsLeft() == false && cpuInput.IsRight() == false)
+		{
+			m_acce = 0;
+		}
 
-	//Move Asteroids
-	auto ut = m_Emitters.begin();
-	for (auto it = m_asteroids.begin(); it != m_asteroids.end(); ++it, ++ut)
-	{
-		cpu_entity* pMissile = *it;
-	
+		//Move Asteroids
+		auto ut = m_Emitters.begin();
+		for (auto it = m_asteroids.begin(); it != m_asteroids.end(); ++it, ++ut)
+		{
+			cpu_entity* pMissile = *it;
+
 			cpu_particle_emitter* pEmitter = *ut;
 			pEmitter->pos = pMissile->transform.pos;
 			pEmitter->dir = pMissile->transform.dir;
@@ -187,29 +192,48 @@ void App::OnUpdate()
 			pEmitter->dir.y = -pEmitter->dir.y;
 			pEmitter->dir.z = -pEmitter->dir.z;
 
-		pMissile->transform.Move(dt * m_AsteroSpeed);
+			pMissile->transform.Move(dt * m_AsteroSpeed);
 
-		if (Collision(pMissile, m_pCenter)) 
-		{
-			cpuEngine.Release(pMissile);
-			HP--;
-			ExplodeEarth();
+			if (Collision(pMissile, m_pCenter))
+			{
+				cpuEngine.Release(pMissile);
+				HP--;
+				ExplodeEarth();
+			}
+
+			if (Collision(pMissile, m_pPlayer))
+			{
+				cpuEngine.Release(pMissile);
+				score++;
+			}
 		}
 
-		if(Collision(pMissile, m_pPlayer)) 
+		// Purge Asteroids
+		for (auto it = m_asteroids.begin(); it != m_asteroids.end(); )
 		{
-			cpuEngine.Release(pMissile);
-			score++;
+			if ((*it)->dead)
+				it = m_asteroids.erase(it);
+			else
+				++it;
 		}
+
+		if (HP <= 0)
+			currentState = Gamestate::GameOver;
+		break;
+
+	case Gamestate::GameOver :
+		//TOD0 conditioon pr l'affichage des textes qui change en game over, faire un high score 
+		break;
 	}
 
-	// Purge Asteroids
-	for (auto it = m_asteroids.begin(); it != m_asteroids.end(); )
+
+
+	if (cpuInput.IsPausePressed())
 	{
-		if ((*it)->dead)
-			it = m_asteroids.erase(it);
+		if (currentState == Gamestate::Pause)
+			currentState = Gamestate::Game;
 		else
-			++it;
+			currentState = Gamestate::Pause;
 	}
 }
 
@@ -223,27 +247,27 @@ void App::OnRender(int pass)
 	// YOUR CODE HERE
 	switch (pass)
 	{
-		case CPU_PASS_PARTICLE_BEGIN:
-		{
-			// Blur particles
-			//cpuEngine.SetRT(m_rts[0]);
-			//cpuEngine.ClearColor();
-			break;
-		}
-		case CPU_PASS_PARTICLE_END:
-		{
-			// Blur particles
-			//cpuEngine.Blur(10);
-			//cpuEngine.SetMainRT();
-			//cpuEngine.AlphaBlend(m_rts[0]);
-			break;
+	case CPU_PASS_PARTICLE_BEGIN:
+	{
+		// Blur particles
+		//cpuEngine.SetRT(m_rts[0]);
+		//cpuEngine.ClearColor();
+		break;
+	}
+	case CPU_PASS_PARTICLE_END:
+	{
+		// Blur particles
+		//cpuEngine.Blur(10);
+		//cpuEngine.SetMainRT();
+		//cpuEngine.AlphaBlend(m_rts[0]);
+		break;
 	}
 	case CPU_PASS_UI_END:
 	{
 		std::string scoretext = "score : " + std::to_string(score);
 		std::string HPtext = "HP : " + std::to_string(HP);
 		XMFLOAT3 tint = { 1.0f, 1.0f, 0.8f };
-		cpuDevice.DrawText(&m_font,scoretext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f - 100), 10, CPU_TEXT_CENTER, &tint);
+		cpuDevice.DrawText(&m_font, scoretext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f - 100), 10, CPU_TEXT_CENTER, &tint);
 		cpuDevice.DrawText(&m_font, HPtext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f + 100), 10, CPU_TEXT_CENTER, &tint);
 		break;
 	}

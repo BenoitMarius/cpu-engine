@@ -1,5 +1,15 @@
 #pragma once
 
+enum class Gamestate
+{
+	Pause,
+	Game,
+	GameOver,
+
+	Count
+	
+};
+
 class App
 {
 public:
@@ -24,6 +34,8 @@ private:
 
 	ui32 seed;
 	cpu_font m_font;
+	bool pauseOn;
+	Gamestate currentState;
 
 	//Player
 	cpu_mesh m_meshPlayer;
