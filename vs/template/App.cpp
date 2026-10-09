@@ -53,6 +53,24 @@ void App::ExplodeEarth()
 
 }
 
+void App::ExplodeEliott()
+{
+	m_pEliottExplosion = cpuEngine.CreateParticleEmitter();
+	cpuEngine.GetParticlePhysics()->gy = -0.5f;
+	m_pEliottExplosion->rate = 0.03f;
+	m_pEliottExplosion->spread = 3.f;
+	m_pEliottExplosion->colorMin = cpu::ToColor(0, 50, 255);
+	m_pEliottExplosion->colorMax = cpu::ToColor(0, 255, 255);
+	m_pEliottExplosion->pos = m_pClone->transform.pos;
+	cloneExploding = true;
+	cpuEngine.Release(m_pClone);
+	cloneActive = false;
+	cloneReady = false;
+	m_cloneCDTimer = m_cloneCD;
+
+	
+}
+
 
 
 bool App::Collision(cpu_entity* colliding, cpu_entity* collided)
@@ -81,6 +99,7 @@ void App::RestartGame()
 	score = 0;
 	HP = 5;
 	m_angle = 0.f;
+	m_cloneCDTimer = 0.f;
 	currentState = Gamestate::Game;
 }
 void App::OnStart()
@@ -122,6 +141,8 @@ void App::OnStart()
 	cpuEngine.GetCamera()->transform.SetYPR(0.0f, 0.785398163397f);
 	cpuEngine.GetCamera()->transform.pos.z = -1.5f;
 
+	m_cloneCDTimer = 0.f;
+
 	m_pPlayer->transform.AddYPR(-XM_PI * 0.5,0, -XM_PI * 0.25);
 
 
@@ -143,6 +164,16 @@ void App::OnUpdate()
 	case Gamestate::Pause :
 		break;
 	case Gamestate::GameOver:
+		if (exploding)
+		{
+			cpuEngine.Release(m_pEarthExplosion);
+		}
+		if (cloneActive)
+		{
+			ExplodeEliott();
+			cpuEngine.Release(m_pEliottExplosion);
+		}
+	
 		if (cpuInput.IsRetryPressed())
 		{
 			RestartGame();
@@ -163,6 +194,24 @@ void App::OnUpdate()
 				exploding = false;
 				ExplosionCDTimer = ExplosionCD;
 				cpuEngine.Release(m_pEarthExplosion);
+			}
+		}
+		if (cloneExploding)
+		{
+			m_cloneExplosionCDTimer += dt;
+			if (m_cloneExplosionCDTimer <= m_cloneExplosionCD)
+			{
+				cloneExploding = false;
+				ExplosionCDTimer = 0.f;
+				cpuEngine.Release(m_pEliottExplosion);
+			}
+		}
+		if (cloneReady == false && cloneActive == false)
+		{
+			m_cloneCDTimer -= dt;
+			if (m_cloneCDTimer <= 0)
+			{
+				cloneReady = true;
 			}
 		}
 		if (spawnCDTimer <= 0)
@@ -198,7 +247,7 @@ void App::OnUpdate()
 			m_acce = 0;
 		}
 
-		if (cpuInput.IsSpace() && cloneActive == false)
+ 		if (cpuInput.IsSpace() && cloneActive == false && cloneReady == true)
 		{
 			m_pClone = cpuEngine.CreateEntity();
 			m_pClone->pMesh = &m_meshPlayer;
@@ -206,15 +255,18 @@ void App::OnUpdate()
 			m_pClone->transform.pos = m_pPlayer->transform.pos;
 			m_pClone->transform.AddYPR(-XM_PI * 0.5, 0, -XM_PI * 0.25);
 			cloneActive = true;
+			cloneReady = false;
+			m_cloneCDTimer = m_cloneCD;
 		}
 		if (cloneActive)
 		{
 			m_cloneDurationTimer += dt;
 			m_pClone->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.75f, m_angle+XM_PI);
-			/*if (m_cloneDurationTimer >= m_cloneDuration)
+			if (m_cloneDurationTimer >= m_cloneDuration)
 			{
-
-			}*/
+				ExplodeEliott();
+				m_cloneDurationTimer = 0.f;
+			}
 		}
 
 		//Move Asteroids
@@ -235,6 +287,7 @@ void App::OnUpdate()
 			if (Collision(pMissile, m_pCenter))
 			{
 				cpuEngine.Release(pMissile);
+				cpuEngine.Release(pEmitter);
 				HP--;
 				ExplodeEarth();
 			}
@@ -242,6 +295,7 @@ void App::OnUpdate()
 			if (Collision(pMissile, m_pPlayer))
 			{
 				cpuEngine.Release(pMissile);
+				cpuEngine.Release(pEmitter);
 				score++;
 				currentscalePlayer += 0.0005;
 				m_pPlayer->transform.Scale(currentscalePlayer);
@@ -325,11 +379,20 @@ void App::OnRender(int pass)
 		std::string scoretext = "score : " + std::to_string(score);
 		std::string HPtext = "HP : " + std::to_string(HP);
 		std::string GameOvertext = "Game Over";
+		std::string cloneStatetext = "Eliott is ready !";
+		std::string cloneDeployedtext = "Eliott Deployed !";
+		std::string cloneCD = "Eliott :" + std::to_string((int)m_cloneCDTimer);
 		XMFLOAT3 tint = { 1.0f, 1.0f, 0.8f };
 		cpuDevice.DrawText(&m_font, scoretext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f - 100), 10, CPU_TEXT_CENTER, &tint);
 		cpuDevice.DrawText(&m_font, HPtext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f + 100), 10, CPU_TEXT_CENTER, &tint);
 		if(currentState == Gamestate::GameOver)
 		cpuDevice.DrawText(&m_font, GameOvertext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f), cpuDevice.GetHeight() * 0.5f, CPU_TEXT_CENTER, &tint);
+		if (cloneReady == true)
+			cpuDevice.DrawText(&m_font, cloneStatetext.c_str(), (int)10, cpuDevice.GetHeight() * 0.5f, CPU_TEXT_LEFT, &tint);
+		else if(cloneActive == true)
+			cpuDevice.DrawText(&m_font, cloneDeployedtext.c_str(), (int)10, cpuDevice.GetHeight() * 0.5f, CPU_TEXT_LEFT, &tint);
+		else
+			cpuDevice.DrawText(&m_font, cloneCD.c_str(), (int)10, cpuDevice.GetHeight() * 0.5f, CPU_TEXT_LEFT, &tint);
 		break;
 	}
 	}

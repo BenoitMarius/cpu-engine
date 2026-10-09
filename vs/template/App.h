@@ -27,6 +27,7 @@ public:
 
 	void SpawnAsteroid();
 	void ExplodeEarth();
+	void ExplodeEliott();
 	bool Collision(cpu_entity* colliding, cpu_entity* collided);
 
 	void RestartGame();
@@ -41,20 +42,26 @@ private:
 	//Player
 	cpu_mesh m_meshPlayer;
 	cpu_material m_materialPlayer;
-	cpu_material m_materialClone;
 	cpu_entity* m_pPlayer;
 	cpu_entity* m_pClone;
 	int score = 0;
 	int HP = 5;
 	float currentscalePlayer = 1.f;
-	float currentscaleClone = 1.f;
-
-	bool cloneActive = false;
 	float m_angle = 0.f;
 	float m_acce = 0.f;
 
+	//Clone
+	cpu_material m_materialClone;
+	bool cloneActive = false;
+	bool cloneExploding = false;
+	bool cloneReady = true;
+	float currentscaleClone = 1.f;
 	float m_cloneDuration = 10.f;
 	float m_cloneDurationTimer = 0.f;
+	float m_cloneExplosionCD = 0.3f;
+	float m_cloneExplosionCDTimer = 0.f;
+	float m_cloneCD = 10.f;
+	float m_cloneCDTimer = 10.f;
 
 	//Earth
 	cpu_mesh m_meshCenter;
@@ -78,6 +85,7 @@ private:
 	//Particules
 	std::list<cpu_particle_emitter*> m_Emitters;
 	cpu_particle_emitter* m_pEarthExplosion;
+	cpu_particle_emitter* m_pEliottExplosion;
 	float ExplosionCDTimer = 0.6f;
 	float ExplosionCD = 0.6f;
 
