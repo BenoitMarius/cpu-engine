@@ -29,28 +29,39 @@ public:
 	void ExplodeEarth();
 	bool Collision(cpu_entity* colliding, cpu_entity* collided);
 
+	void RestartGame();
+
 private:
 	inline static App* s_pApp = nullptr;
 
 	ui32 seed;
 	cpu_font m_font;
-	bool pauseOn;
-	Gamestate currentState;
+	Gamestate currentState = Gamestate::Game;
 
 	//Player
 	cpu_mesh m_meshPlayer;
 	cpu_material m_materialPlayer;
+	cpu_material m_materialClone;
 	cpu_entity* m_pPlayer;
+	cpu_entity* m_pClone;
 	int score = 0;
 	int HP = 5;
+	float currentscalePlayer = 1.f;
+	float currentscaleClone = 1.f;
 
+	bool cloneActive = false;
 	float m_angle = 0.f;
 	float m_acce = 0.f;
+
+	float m_cloneDuration = 10.f;
+	float m_cloneDurationTimer = 0.f;
 
 	//Earth
 	cpu_mesh m_meshCenter;
 	cpu_entity* m_pCenter;
 	cpu_texture m_textureEarth;
+	cpu_texture m_textureAxel;
+	cpu_texture m_textureEliott;
 	cpu_material m_materialEarth;
 	bool exploding = false;
 
@@ -61,7 +72,7 @@ private:
 	float spawnPos;
 	float m_AsteroSpeed = 1.f;
 
-	float spawnCD = 1.f;
+	float spawnCD = 3.f;
 	float spawnCDTimer = 0.f;
 
 	//Particules

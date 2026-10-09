@@ -54,7 +54,12 @@ public:
 	bool IsPause();
 	bool IsPausePressed();
 	bool IsPauseReleased();
-
+	bool IsRetry();
+	bool IsRetryPressed();
+	bool IsRetryReleased();
+	bool IsSpace();
+	bool IsSpacePressed();
+	bool IsSpaceReleased();
 
 	bool ResetCamera();
 	bool ResetCameraPressed();

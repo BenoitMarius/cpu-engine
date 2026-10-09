@@ -76,6 +76,13 @@ bool App::Collision(cpu_entity* colliding, cpu_entity* collided)
 	else return false;
 
 }
+void App::RestartGame()
+{
+	score = 0;
+	HP = 5;
+	m_angle = 0.f;
+	currentState = Gamestate::Game;
+}
 void App::OnStart()
 {
 	// YOUR CODE HERE
@@ -87,12 +94,17 @@ void App::OnStart()
 
 	//Ressources
 	m_textureEarth.Load("earth.png");
+	m_textureAxel.Load("miniaxl.png");
+	m_textureEliott.Load("minielliot.png");
 	m_meshCenter.CreateSphere(0.15f, 10, 10, CPU_WHITE, CPU_WHITE);
-	m_meshPlayer.CreateCube(0.15f, CPU_ORANGE);
+	m_meshPlayer.CreateSphere(0.15f, 10, 10, CPU_WHITE, CPU_WHITE);
+
 	m_meshAsteroid.CreateSphere(0.075f, 10, 10, CPU_GRAY, CPU_GRAY);
 
 	//Textures
 	m_materialEarth.pTexture = &m_textureEarth;
+	m_materialPlayer.pTexture = &m_textureAxel;
+	m_materialClone.pTexture = &m_textureEliott;
 
 	//3D
 	m_pCenter = cpuEngine.CreateEntity();
@@ -100,7 +112,6 @@ void App::OnStart()
 	m_pCenter->pMaterial = &m_materialEarth;
 
 	m_pPlayer = cpuEngine.CreateEntity();
-	m_materialPlayer.color = cpu::ToColor(255, 125, 0);
 	m_pPlayer->pMesh = &m_meshPlayer;
 	m_pPlayer->pMaterial = &m_materialPlayer;
 
@@ -110,6 +121,8 @@ void App::OnStart()
 	//Others
 	cpuEngine.GetCamera()->transform.SetYPR(0.0f, 0.785398163397f);
 	cpuEngine.GetCamera()->transform.pos.z = -1.5f;
+
+	m_pPlayer->transform.AddYPR(-XM_PI * 0.5,0, -XM_PI * 0.25);
 
 
 	m_pCenter->transform.pos.y = -3.f;
@@ -121,19 +134,25 @@ void App::OnStart()
 void App::OnUpdate()
 {
 	// YOUR CODE HERE
+	float dt = cpuTime.delta;
+	float time = cpuTime.total;
+	
 
 	switch (currentState)
 	{
 	case Gamestate::Pause :
 		break;
+	case Gamestate::GameOver:
+		if (cpuInput.IsRetryPressed())
+		{
+			RestartGame();
+		}
+		break;
+
 	case Gamestate::Game :
 
-
-		float dt = cpuTime.delta;
-		float time = cpuTime.total;
-
 		spawnCDTimer -= dt;
-		spawnCD = 3.0f - (score / 10) * 0.5f;
+		spawnCD = 3.f - (score / 10) * 0.5f;
 		if (spawnCD <= 0.3f)
 			spawnCD = 0.3f;
 		if (exploding)
@@ -173,10 +192,29 @@ void App::OnUpdate()
 				m_acce = 3 * XM_PI;
 			m_angle -= dt * m_acce;
 		}
-		m_pPlayer->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.5f, m_angle);
+		m_pPlayer->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.75f, m_angle);
 		if (cpuInput.IsLeft() == false && cpuInput.IsRight() == false)
 		{
 			m_acce = 0;
+		}
+
+		if (cpuInput.IsSpace() && cloneActive == false)
+		{
+			m_pClone = cpuEngine.CreateEntity();
+			m_pClone->pMesh = &m_meshPlayer;
+			m_pClone->pMaterial = &m_materialClone;
+			m_pClone->transform.pos = m_pPlayer->transform.pos;
+			m_pClone->transform.AddYPR(-XM_PI * 0.5, 0, -XM_PI * 0.25);
+			cloneActive = true;
+		}
+		if (cloneActive)
+		{
+			m_cloneDurationTimer += dt;
+			m_pClone->transform.OrbitAroundAxis(m_pCenter->transform.pos, CPU_VEC3_UP, 0.75f, m_angle+XM_PI);
+			/*if (m_cloneDurationTimer >= m_cloneDuration)
+			{
+
+			}*/
 		}
 
 		//Move Asteroids
@@ -205,6 +243,16 @@ void App::OnUpdate()
 			{
 				cpuEngine.Release(pMissile);
 				score++;
+				currentscalePlayer += 0.0005;
+				m_pPlayer->transform.Scale(currentscalePlayer);
+			}
+			if(cloneActive)
+				if(Collision(pMissile, m_pClone))
+			{
+					cpuEngine.Release(pMissile);
+					score++;
+					currentscaleClone += 0.0005;
+					m_pClone->transform.Scale(currentscaleClone);
 			}
 		}
 
@@ -217,16 +265,22 @@ void App::OnUpdate()
 				++it;
 		}
 
-		if (HP <= 0)
-			currentState = Gamestate::GameOver;
 		break;
 
-	case Gamestate::GameOver :
-		//TOD0 conditioon pr l'affichage des textes qui change en game over, faire un high score 
-		break;
+
 	}
 
+	//TO DO
+	// 
+	////Update Highscore 
+	//FILE* fptr;
+	//errno_t err;
+	//err = fopen_s(&fptr, "highscore.txt", "w");
 
+	
+
+	if (HP <= 0)
+		currentState = Gamestate::GameOver;
 
 	if (cpuInput.IsPausePressed())
 	{
@@ -235,6 +289,10 @@ void App::OnUpdate()
 		else
 			currentState = Gamestate::Pause;
 	}
+
+	// Quit
+	if (cpuInput.IsBackPressed())
+		cpuEngine.Quit();
 }
 
 void App::OnExit()
@@ -266,9 +324,12 @@ void App::OnRender(int pass)
 	{
 		std::string scoretext = "score : " + std::to_string(score);
 		std::string HPtext = "HP : " + std::to_string(HP);
+		std::string GameOvertext = "Game Over";
 		XMFLOAT3 tint = { 1.0f, 1.0f, 0.8f };
 		cpuDevice.DrawText(&m_font, scoretext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f - 100), 10, CPU_TEXT_CENTER, &tint);
 		cpuDevice.DrawText(&m_font, HPtext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f + 100), 10, CPU_TEXT_CENTER, &tint);
+		if(currentState == Gamestate::GameOver)
+		cpuDevice.DrawText(&m_font, GameOvertext.c_str(), (int)(cpuDevice.GetWidth() * 0.5f), cpuDevice.GetHeight() * 0.5f, CPU_TEXT_CENTER, &tint);
 		break;
 	}
 	}
