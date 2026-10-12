@@ -287,7 +287,6 @@ void App::OnUpdate()
 			if (Collision(pMissile, m_pCenter))
 			{
 				cpuEngine.Release(pMissile);
-				cpuEngine.Release(pEmitter);
 				HP--;
 				ExplodeEarth();
 			}
